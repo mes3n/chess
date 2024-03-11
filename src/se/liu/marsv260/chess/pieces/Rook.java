@@ -21,13 +21,16 @@ public class Rook extends Piece
 	this.hasMoved = hasMoved;
     }
 
-    @Override public List<Point> getMoves() {
-	return stepBy(DELTAS, -1);
+    @Override public List<Point> getMoves(boolean checkForCheck) {
+	return stepBy(DELTAS, -1, checkForCheck);
     }
 
-    @Override public void moveTo(final Point position) {
-	super.moveTo(position);
+    @Override public boolean moveTo(final Point position) {
+	if (!super.moveTo(position)) {
+	    return false;
+	}
 	hasMoved = true;
+	return true;
     }
 
     public boolean getHasMoved() {

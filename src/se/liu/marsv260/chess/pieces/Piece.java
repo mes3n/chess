@@ -15,7 +15,11 @@ public abstract class Piece
     private Point position;
     final protected Board board;
 
-    abstract public List<Point> getMoves();
+    public List<Point> getMoves() {
+	return getMoves(true);
+    }
+
+    abstract public List<Point> getMoves(boolean checkForCheck);
 
     protected Piece(final Color color, final Type type, final Point position, final Board board) {
 	this.color = color;
@@ -24,25 +28,28 @@ public abstract class Piece
 	this.board = board;
     }
 
-    public void moveTo(Point position) {
-	if (this.position.equals(position)) {
-	    return;
+    public boolean moveTo(Point position) {
+	if (this.position.equals(position) || !getMoves().contains(position)) {
+	    return false;
 	}
-	for (Piece piece : board.getPieces()) {
-	    if (position.equals(piece.getPosition())) {
-		if (color != piece.getColor()) {
-		    board.removePiece(piece);
-		    break;
-		}
+	Piece piece = board.pieceAt(position);
+	if (piece != null) {
+	    if (color.equals(piece.getColor())) {
+		return false;
+	    } else {
+		board.removePiece(piece);
 	    }
 	}
 	this.position = position;
+	return true;
     }
 
-    interface AdderFunction {
+    protected interface AdderFunction
+    {
 	boolean addTo(List<Point> moves, Point move, Board.MoveResult result);
     }
-    protected List<Point> stepBy(List<Point> deltas, final int len, AdderFunction adder) {
+
+    protected List<Point> stepBy(List<Point> deltas, final int len, AdderFunction adder, boolean checkForCheck) {
 	List<Point> moves = new ArrayList<>();
 
 	for (Point delta : deltas) {
@@ -51,8 +58,8 @@ public abstract class Piece
 	    int c = 0;
 	    do {
 		moveTo.translate(delta.x, delta.y);
-		result = board.checkMove(moveTo, color);
-		if (adder.addTo(moves, new Point(moveTo), result)) {
+		result = board.verifyMove(this, moveTo, checkForCheck);
+		if (adder.addTo(moves, moveTo, result)) {
 		    break;
 		}
 		c++;
@@ -61,15 +68,16 @@ public abstract class Piece
 
 	return moves;
     }
-    protected List<Point> stepBy(List<Point> deltas, final int len) {
-	return stepBy(deltas, len, this::addTo);
+
+    protected List<Point> stepBy(List<Point> deltas, final int len, boolean checkForCheck) {
+	return stepBy(deltas, len, this::addToAndStop, checkForCheck);
     }
 
-    protected boolean addTo(List<Point> moves, final Point move, final Board.MoveResult result) {
-	if (result == Board.MoveResult.WALL) {
+    protected boolean addToAndStop(List<Point> moves, final Point move, final Board.MoveResult result) {
+	if (result == Board.MoveResult.IMPOSSIBLE) {
 	    return true;
 	}
-	moves.add(move);
+	moves.add(new Point(move));
 	if (result == Board.MoveResult.CAPTURE) {
 	    return true;
 	}
@@ -86,6 +94,10 @@ public abstract class Piece
 
     public Point getPosition() {
 	return position;
+    }
+
+    public void setPosition(final Point position) {
+	this.position = position;
     }
 
     public enum Color

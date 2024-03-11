@@ -12,10 +12,10 @@ public class Horse extends Piece
 	super(color, Type.HORSE, position, board);
     }
 
-    @Override public java.util.List<Point> getMoves() {
+    @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
 	final List<Point> deltas =
 		Arrays.asList(new Point(2, -1), new Point(2, 1), new Point(-2, -1), new Point(-2, 1), new Point(1, -2), new Point(1, 2),
 			      new Point(-1, -2), new Point(-1, 2));
-	return stepBy(deltas, 1);
+	return stepBy(deltas, 1, checkForCheck);
     }
 }

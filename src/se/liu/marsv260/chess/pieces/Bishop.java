@@ -14,7 +14,7 @@ public class Bishop extends Piece
 	super(color, Piece.Type.BISHOP, position, board);
     }
 
-    @Override public java.util.List<Point> getMoves() {
-	return stepBy(DELTAS, -1);
+    @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
+	return stepBy(DELTAS, -1, checkForCheck);
     }
 }

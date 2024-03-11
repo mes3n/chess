@@ -4,6 +4,8 @@ import se.liu.marsv260.chess.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,19 +14,56 @@ public class Display extends JComponent
     private final int tileSize;
     private Sprite spriteSheet;
     private final Board board;
+    private final Player player;
 
-    private List<Point> moveOptions = new ArrayList<>();
+    private JLabel status = new JLabel();
+//    private JLabel lastMove = new JLabel("e4");
 
-    public Display(final Board board, final int tileSize, final String spritePath) {
+    public Display(final Board board, final Player player, final int tileSize, final String spritePath) {
 	this.board = board;
+	this.player = player;
 	this.tileSize = tileSize;
 
 	spriteSheet = new Sprite(spritePath, tileSize);
+
+	addMouseListener(new MouseAdapter()
+	{
+	    @Override public void mouseReleased(final MouseEvent e) {
+		player.move(getBoardTile(e.getPoint()));
+		updateStatus();
+		repaint();
+	    }
+	});
+
+	status.setFont(new Font("Serif", Font.BOLD, 16));
+	updateStatus();
+//	lastMove.setFont(new Font("Serif", Font.BOLD, 16));
     }
 
-    void setMoveOptions(List<Point> moveOptions) {
-	this.moveOptions = moveOptions;
+    public JLabel getStatus() {
+	return status;
     }
+
+    private void updateStatus() {
+	if (player.isGameOver()) {
+	    Piece.Color winner = player.getWinner();
+	    if (winner == null) {
+		status.setText("both players draw.");
+		return;
+	    }
+	    status.setText(winner.toString().toLowerCase() + " wins.");
+	    return;
+	}
+	status.setText(player.getCurrentPlayer().toString().toLowerCase() + " to move.");
+    }
+
+    private Point getBoardTile(final Point position) {
+	return new Point((int) position.getX() / tileSize, (int) position.getY() / tileSize);
+    }
+
+    // public JLabel getLastMove() {
+// 	return lastMove;
+    // }
 
     @Override public Dimension getPreferredSize() {
 	return new Dimension(board.getWidth() * tileSize, board.getHeight() * tileSize);
@@ -61,8 +100,9 @@ public class Display extends JComponent
 
 	g2d.setColor(new Color(100, 200, 0, 100));
 	final int r = tileSize / 8;
-	for (Point point : moveOptions) {
-	    g2d.fillOval((int) ((double) tileSize * ((double) point.x + 0.5)) - r, (int) ((double) tileSize * ((double) point.y + 0.5)) - r, 2*r, 2*r);
+	for (Point point : player.getMoves()) {
+	    g2d.fillOval((int) ((double) tileSize * ((double) point.x + 0.5)) - r, (int) ((double) tileSize * ((double) point.y + 0.5)) - r,
+			 2 * r, 2 * r);
 	}
     }
 }

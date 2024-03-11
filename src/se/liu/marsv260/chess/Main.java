@@ -31,10 +31,11 @@ public class Main
     }
 
     public static void main(String[] args) {
-	Board board = new Board(8, 8);
-	board.addPieces(new King(Piece.Color.WHITE, new Point(0, 0), board), new Rook(Piece.Color.BLACK, new Point(2, 3), board));
+	Board board = setupBoard();
+	Player player = new Player(board);
+	Display display = new Display(board, player, 64, "images/spritesheet.png");
 
 	Viewer viewer = new Viewer();
-	viewer.show(board);
+	viewer.show(display);
     }
 }

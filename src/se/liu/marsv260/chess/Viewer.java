@@ -5,15 +5,17 @@ import java.awt.*;
 
 public class Viewer
 {
-    public void show(final Board board) {
+    public void show(final Display display) {
 	JFrame frame = new JFrame("Chess");
 	frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-	Display display = new Display(board, 64, "images/spritesheet.png");
-	Mouse mouse = new Mouse(board, display, 64);
+	frame.setLayout(new BorderLayout());
+	frame.add(display, BorderLayout.CENTER);
 
-	display.addMouseListener(mouse);
-	frame.add(display);
+	JPanel panel = new JPanel(new BorderLayout());
+//	panel.add(display.getLastMove(), BorderLayout.EAST);
+	panel.add(display.getStatus(), BorderLayout.WEST);
+	frame.add(panel, BorderLayout.SOUTH);
 
 	frame.pack();
 	frame.setVisible(true);

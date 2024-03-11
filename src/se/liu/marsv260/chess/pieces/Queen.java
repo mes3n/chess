@@ -16,7 +16,7 @@ public class Queen extends Piece
 	super(color, Type.QUEEN, position, board);
     }
 
-    @Override public java.util.List<Point> getMoves() {
-	return stepBy(DELTAS, -1);
+    @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
+	return stepBy(DELTAS, -1, checkForCheck);
     }
 }
