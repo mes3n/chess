@@ -6,47 +6,83 @@ import java.awt.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
-public abstract class Piece
+/**
+ * Abstract class to represent a chess piece and its position on the board. Is a subclass of Entity.
+ * <p>
+ * Also includes methods for controlling the piece's position on the board.
+ */
+public abstract class Piece extends Entity
 {
-    private final Color color;
-    private final Type type;
-
     private Point position;
     final protected Board board;
 
-    public List<Point> getMoves() {
-	return getMoves(true);
-    }
-
-    abstract public List<Point> getMoves(boolean checkForCheck);
-
+    /**
+     * Base constructor of the Piece abstract class.
+     *
+     * @param color    the color of the created Piece.
+     * @param type     the type of the created Piece.
+     * @param position the position on the board of the created Piece.
+     * @param board    the board the Piece is placed on.
+     */
     protected Piece(final Color color, final Type type, final Point position, final Board board) {
-	this.color = color;
-	this.type = type;
+	super(color, type);
 	this.position = position;
 	this.board = board;
     }
 
+    /**
+     * Returns the possible moves of a piece with regard to pins.
+     *
+     * @return List of Piece's available moves.
+     */
+    public List<Point> getMoves() {
+	return getMoves(true);
+    }
+
+    /**
+     * Returns the possible moves of a piece.
+     *
+     * @param checkForCheck whether or not to recursively look at possible checks.
+     *
+     * @return List of Piece's available moves.
+     */
+    abstract public List<Point> getMoves(boolean checkForCheck);
+
+    /**
+     * Attempts to move Piece to a position on the baord.
+     * <p>
+     * Also removes captured pieces from board.
+     *
+     * @param position position to attempt to move to.
+     *
+     * @return whether or not the Piece was actually moved.
+     */
     public boolean moveTo(Point position) {
+	Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 	if (this.position.equals(position) || !getMoves().contains(position)) {
+	    logger.log(Level.FINE, "Failed with moving {0} to {1}", new Object[] { getClass(), position });
 	    return false;
 	}
 	Piece piece = board.pieceAt(position);
 	if (piece != null) {
-	    if (color.equals(piece.getColor())) {
+	    if (getColor().equals(piece.getColor())) {
 		return false;
 	    } else {
 		board.removePiece(piece);
 	    }
 	}
 	this.position = position;
+	logger.log(Level.FINE, "Moved {0} to {1}", new Object[] { getClass(), position });
 	return true;
     }
 
     protected interface AdderFunction
     {
-	boolean addTo(List<Point> moves, Point move, Board.MoveResult result);
+	boolean addToAndStop(List<Point> moves, Point move, Board.MoveResult result);
     }
 
     protected List<Point> stepBy(List<Point> deltas, final int len, AdderFunction adder, boolean checkForCheck) {
@@ -59,7 +95,7 @@ public abstract class Piece
 	    do {
 		moveTo.translate(delta.x, delta.y);
 		result = board.verifyMove(this, moveTo, checkForCheck);
-		if (adder.addTo(moves, moveTo, result)) {
+		if (adder.addToAndStop(moves, moveTo, result)) {
 		    break;
 		}
 		c++;
@@ -74,7 +110,10 @@ public abstract class Piece
     }
 
     protected boolean addToAndStop(List<Point> moves, final Point move, final Board.MoveResult result) {
-	if (result == Board.MoveResult.IMPOSSIBLE) {
+	if (result == Board.MoveResult.WALLED) {
+	    return true;
+	}
+	if (result == Board.MoveResult.IN_CHECK) {
 	    return true;
 	}
 	moves.add(new Point(move));
@@ -84,42 +123,21 @@ public abstract class Piece
 	return false;
     }
 
-    public Color getColor() {
-	return color;
-    }
-
-    public Type getType() {
-	return type;
-    }
-
+    /**
+     * @return Piece's position.
+     */
     public Point getPosition() {
 	return position;
     }
 
+    /**
+     * Sets the position of a Piece.
+     * <p>
+     * Only used when manually moving Pieces to check for available moves.
+     *
+     * @param position position to set for Piece.
+     */
     public void setPosition(final Point position) {
 	this.position = position;
     }
-
-    public enum Color
-    {
-	WHITE(0), BLACK(1);
-
-	public final int value;
-
-	Color(int value) {
-	    this.value = value;
-	}
-    }
-
-    public enum Type
-    {
-	KING(0), QUEEN(1), BISHOP(2), HORSE(3), ROOK(4), PAWN(5);
-
-	public final int value;
-
-	Type(int value) {
-	    this.value = value;
-	}
-    }
-
 }

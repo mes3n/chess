@@ -1,14 +1,21 @@
 package se.liu.marsv260.chess;
 
+import se.liu.marsv260.chess.pieces.Entity;
 import se.liu.marsv260.chess.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
+/**
+ * Class for drawing chess board with its pieces to screen. Subclass of JComponent.
+ * <p>
+ * Also provides an interface for listening to mouse moments and providing information.
+ */
 public class Display extends JComponent
 {
     private final int tileSize;
@@ -17,8 +24,15 @@ public class Display extends JComponent
     private final Player player;
 
     private JLabel status = new JLabel();
-//    private JLabel lastMove = new JLabel("e4");
 
+    /**
+     * Constructor of the Display class
+     *
+     * @param board      the Board the Display should show.
+     * @param player     the Player using the Display.
+     * @param tileSize   the size of a tile in spritesheet.
+     * @param spritePath the path to the spritesheet.
+     */
     public Display(final Board board, final Player player, final int tileSize, final String spritePath) {
 	this.board = board;
 	this.player = player;
@@ -28,30 +42,36 @@ public class Display extends JComponent
 
 	addMouseListener(new MouseAdapter()
 	{
-	    @Override public void mouseReleased(final MouseEvent e) {
-		player.move(getBoardTile(e.getPoint()));
-		updateStatus();
+	    @Override public void mouseReleased(final MouseEvent me) {
+		player.move(getBoardTile(me.getPoint()));
 		repaint();
+		updateStatus();
+
+		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
+		logger.log(Level.FINE, "Mouse release was handeled on board tile {0}", getBoardTile(me.getPoint()));
 	    }
 	});
 
 	status.setFont(new Font("Serif", Font.BOLD, 16));
 	updateStatus();
-//	lastMove.setFont(new Font("Serif", Font.BOLD, 16));
     }
 
+    /**
+     * @return JLabel containing information such as current player.
+     */
     public JLabel getStatus() {
 	return status;
     }
 
     private void updateStatus() {
 	if (player.isGameOver()) {
-	    Piece.Color winner = player.getWinner();
-	    if (winner == null) {
-		status.setText("both players draw.");
-		return;
-	    }
-	    status.setText(winner.toString().toLowerCase() + " wins.");
+	    Entity.Color winner = player.getWinner();
+	    String message = switch (winner) {
+		case null -> "both players draw.";
+		default -> winner.toString().toLowerCase() + " wins.";
+	    };
+	    status.setText(message);
+	    JOptionPane.showMessageDialog(this, message);
 	    return;
 	}
 	status.setText(player.getCurrentPlayer().toString().toLowerCase() + " to move.");
@@ -61,10 +81,9 @@ public class Display extends JComponent
 	return new Point((int) position.getX() / tileSize, (int) position.getY() / tileSize);
     }
 
-    // public JLabel getLastMove() {
-// 	return lastMove;
-    // }
-
+    /**
+     * @return preferred Dimension of Display.
+     */
     @Override public Dimension getPreferredSize() {
 	return new Dimension(board.getWidth() * tileSize, board.getHeight() * tileSize);
     }
@@ -88,7 +107,8 @@ public class Display extends JComponent
 		    g2d.drawString(Integer.toString(board.getHeight() - y), margin, y * tileSize + fontSize + margin);
 		}
 		if (y == board.getHeight() - 1) {
-		    g2d.drawString(Character.toString(x + (int) 'a'), (x + 1) * tileSize - fontSize, board.getHeight() * tileSize - margin);
+		    g2d.drawString(Character.toString(x + Integer.valueOf('a')), (x + 1) * tileSize - fontSize,
+				   board.getHeight() * tileSize - margin);
 		}
 	    }
 	}
@@ -101,8 +121,7 @@ public class Display extends JComponent
 	g2d.setColor(new Color(100, 200, 0, 100));
 	final int r = tileSize / 8;
 	for (Point point : player.getMoves()) {
-	    g2d.fillOval((int) ((double) tileSize * ((double) point.x + 0.5)) - r, (int) ((double) tileSize * ((double) point.y + 0.5)) - r,
-			 2 * r, 2 * r);
+	    g2d.fillOval((int) (tileSize * (point.x + 0.5)) - r, (int) (tileSize * (point.y + 0.5)) - r, 2 * r, 2 * r);
 	}
     }
 }

@@ -6,17 +6,32 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class for the Queen piece which is a subclass of Piece.
+ */
 public class Queen extends Piece
 {
-    private static final List<Point> DELTAS =  // TODO: Similar to King movements
-	    Arrays.asList(new Point(-1, 0), new Point(1, 0), new Point(0, -1), new Point(0, 1), new Point(-1, -1), new Point(1, 1),
-			  new Point(1, -1), new Point(-1, 1));
-
+    /**
+     * Constructor of the Queen class.
+     *
+     * @param color    the color of the created Queen.
+     * @param position the position of the created Queen.
+     * @param board    the board the Queen is placed on.
+     */
     public Queen(Color color, Point position, Board board) {
 	super(color, Type.QUEEN, position, board);
     }
 
+    /**
+     * Returns the possible moves of Queen.
+     *
+     * @return List of Queens's available moves.
+     */
     @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
-	return stepBy(DELTAS, -1, checkForCheck);
+	final List<Point> deltas =
+		Arrays.asList(new Point(-1, 0), new Point(1, 0), new Point(0, -1), new Point(0, 1), new Point(-1, -1), new Point(1, 1),
+			      new Point(1, -1), new Point(-1, 1));
+
+	return stepBy(deltas, -1, checkForCheck);
     }
 }

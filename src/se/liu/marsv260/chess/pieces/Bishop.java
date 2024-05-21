@@ -6,15 +6,29 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class for the Bishop piece which is a subclass of Piece.
+ */
 public class Bishop extends Piece
 {
-    private static final List<Point> DELTAS = Arrays.asList(new Point(-1, -1), new Point(1, 1), new Point(1, -1), new Point(-1, 1));
-
-    public Bishop(Piece.Color color, Point position, Board board) {
-	super(color, Piece.Type.BISHOP, position, board);
+    /**
+     * Constructor of the Bishop class.
+     *
+     * @param color    the color of the created Bishop.
+     * @param position the position of the created Bishop.
+     * @param board    the board the Bishop is placed on.
+     */
+    public Bishop(Entity.Color color, Point position, Board board) {
+	super(color, Entity.Type.BISHOP, position, board);
     }
 
+    /**
+     * Returns the possible moves of Bishop.
+     *
+     * @return List of Bishops's available moves.
+     */
     @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
-	return stepBy(DELTAS, -1, checkForCheck);
+	final List<Point> deltas = Arrays.asList(new Point(-1, -1), new Point(1, 1), new Point(1, -1), new Point(-1, 1));
+	return stepBy(deltas, -1, checkForCheck);
     }
 }
