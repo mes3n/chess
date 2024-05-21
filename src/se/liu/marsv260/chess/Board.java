@@ -73,7 +73,7 @@ public class Board
      *
      * @return the first Piece mathched by predicate.
      */
-    public Piece pieceWith(final Predicate<Piece> predicate) {
+    public Piece findPieceWith(final Predicate<Piece> predicate) {
 	return pieces.stream().filter(predicate).findFirst().orElse(null);
     }
 
@@ -84,8 +84,8 @@ public class Board
      *
      * @return a piece on the provided position or null.
      */
-    public Piece pieceAt(final Point position) {
-	return pieceWith(piece -> position.equals(piece.getPosition()));
+    public Piece findPieceAt(final Point position) {
+	return findPieceWith(piece -> position.equals(piece.getPosition()));
     }
 
     /**
@@ -101,16 +101,17 @@ public class Board
 	if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height) {
 	    return MoveResult.WALLED;
 	}
-	final Piece moveToPiece = pieceAt(position);
+	final Piece moveToPiece = findPieceAt(position);
 	if (checkForCheck) {
-	    if (moveToPiece != null && !piece.getColor().equals(moveToPiece.getColor())) {
+	    final boolean capture = moveToPiece != null && !piece.getColor().equals(moveToPiece.getColor());
+	    if (capture) {
 		removePiece(moveToPiece);
 	    }
-	    final Point oldPositon = new Point(piece.getPosition());
+	    final Point oldPosition = new Point(piece.getPosition());
 	    piece.setPosition(position);
-	    boolean isInCheck = inCheck(piece.getColor());
-	    piece.setPosition(oldPositon);
-	    if (moveToPiece != null && !piece.getColor().equals(moveToPiece.getColor())) {
+	    boolean isInCheck = isInCheck(piece.getColor());
+	    piece.setPosition(oldPosition);
+	    if (capture) {
 		addPiece(moveToPiece);
 	    }
 	    if (isInCheck) {
@@ -130,9 +131,9 @@ public class Board
      *
      * @return whether or not the color is in check.
      */
-    public boolean inCheck(Entity.Color color) {
-	final King king = (King) pieceWith(piece -> piece instanceof King && color.equals(piece.getColor()));
-	return inCheck(king);
+    public boolean isInCheck(Entity.ChessColor color) {
+	final King king = (King) findPieceWith(piece -> Entity.Type.KING.equals(piece.getType()) && color.equals(piece.getColor()));
+	return isInCheck(king);
     }
 
     /**
@@ -142,8 +143,8 @@ public class Board
      *
      * @return whether or not the king is in check.
      */
-    public boolean inCheck(King king) {
-	return pieceWith(piece -> !king.getColor().equals(piece.getColor()) && piece.getMoves(false).contains(king.getPosition())) != null;
+    public boolean isInCheck(King king) {
+	return findPieceWith(piece -> !king.getColor().equals(piece.getColor()) && piece.getMoves(false).contains(king.getPosition())) != null;
     }
 
 
@@ -155,10 +156,10 @@ public class Board
      *
      * @return whether or not the king is in check.
      */
-    public boolean inCheck(King king, Point position) {
+    public boolean isInCheck(King king, Point position) {
 	Point oldPosition = new Point(king.getPosition());
 	king.setPosition(position);
-	boolean result = inCheck(king);
+	boolean result = isInCheck(king);
 	king.setPosition(oldPosition);
 	return result;
     }

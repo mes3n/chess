@@ -9,8 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import static java.lang.System.exit;
-
 /**
  * Class for loading sprites as a BufferedImage.
  * <p>
@@ -34,16 +32,16 @@ public class Sprite
     }
 
     private BufferedImage loadSprite() {
+	final Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 	try {
 	    final URL image = ClassLoader.getSystemResource(path);
 	    if (image == null) {
-		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 		logger.log(Level.SEVERE, "Could not find image at path {0}", path);
 		return null;
+	    } else {
+		return ImageIO.read(image);
 	    }
-	    return ImageIO.read(image);
 	} catch (IOException ex) {
-	    Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 	    logger.log(Level.SEVERE, "Could not load image at {0}", path);
 	    logger.log(Level.SEVERE, "Exception was thrown:", ex);
 	    return null;

@@ -19,6 +19,8 @@ public class Pawn extends Piece
     private boolean canBeEnPassant = false;
     private final int forwards;
 
+    private static final int firstMoveLength = 2;
+
     /**
      * Constructor of the Pawn class.
      *
@@ -26,22 +28,9 @@ public class Pawn extends Piece
      * @param position the position of the created Pawn.
      * @param board    the board the Pawn is placed on.
      */
-    public Pawn(Color color, Point position, Board board) {
+    public Pawn(ChessColor color, Point position, Board board) {
 	super(color, Type.PAWN, position, board);
-	forwards = color == Color.WHITE ? -1 : 1;
-    }
-
-    /**
-     * Constructor of the Pawn class.
-     *
-     * @param color     the color of the created Pawn.
-     * @param position  the position of the created Pawn.
-     * @param board     the board the Pawn is placed on.
-     * @param firstMove whether or not the next move is the Pawn's first move.
-     */
-    public Pawn(Color color, Point position, Board board, boolean firstMove) {
-	this(color, position, board);
-	this.firstMove = firstMove;
+	forwards = color == ChessColor.WHITE ? -1 : 1;
     }
 
     /**
@@ -53,7 +42,7 @@ public class Pawn extends Piece
      */
     @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
 	final List<Point> deltas = Arrays.asList(new Point(0, forwards));
-	List<Point> moves = stepBy(deltas, firstMove ? 2 : 1, checkForCheck);
+	List<Point> moves = stepBy(deltas, firstMove ? firstMoveLength : 1, checkForCheck);
 
 	final List<Point> deltasCapture = Arrays.asList(new Point(1, forwards), new Point(-1, forwards));
 	moves.addAll(stepBy(deltasCapture, 1, this::captureAddToAndStop, checkForCheck));
@@ -84,8 +73,8 @@ public class Pawn extends Piece
 
     private boolean enPassantAddToAndStop(final List<Point> moves, final Point move, final Board.MoveResult result) {
 	if (result == Board.MoveResult.CAPTURE) {
-	    Piece piece = board.pieceAt(move);
-	    if (piece instanceof Pawn && ((Pawn) piece).getCanBeEnPassant()) {
+	    Piece piece = board.findPieceAt(move);
+	    if (Type.PAWN.equals(piece.getType()) && ((Pawn) piece).getCanBeEnPassant()) {
 		moves.add(new Point(move.x, move.y + forwards));
 	    }
 	}
@@ -118,27 +107,26 @@ public class Pawn extends Piece
      * @return whether or not Pawn was actually moved.
      */
     @Override public boolean moveTo(final Point position) {
+	final Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 	Point oldPosition = new Point(getPosition());
 	if (!super.moveTo(position)) {
 	    return false;
 	}
 	// Capture has been made en passant
 	if (Math.abs(position.x - oldPosition.x) == 1) {
-	    Piece piece = board.pieceAt(new Point(position.x, oldPosition.y));
-	    if (piece instanceof Pawn && !getColor().equals(piece.getColor()) && ((Pawn) piece).getCanBeEnPassant()) {
-		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
+	    Piece piece = board.findPieceAt(new Point(position.x, oldPosition.y));
+	    if (Type.PAWN.equals(piece.getType()) && !getColor().equals(piece.getColor()) && ((Pawn) piece).getCanBeEnPassant()) {
 		logger.log(Level.FINE, "{0} captured {1} en passant", new Object[] { getClass(), piece.getClass() });
 		board.removePiece(piece);
 	    }
 	}
-	if (position.y - oldPosition.y == 2 * forwards) {  // True if moved two steps forwards
+	if (position.y - oldPosition.y == firstMoveLength * forwards) {  // True if moved two steps forwards
 	    canBeEnPassant = true;
 	}
 	firstMove = false;
 
 	// Promote pawn
 	if ((forwards == 1 && position.y == board.getHeight() - 1) || (forwards == -1 && position.y == 0)) {
-	    Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 	    logger.log(Level.FINE, "{0} reached the last rank", getClass());
 	    board.addPiece(new Queen(getColor(), getPosition(), board));
 	    board.removePiece(this);

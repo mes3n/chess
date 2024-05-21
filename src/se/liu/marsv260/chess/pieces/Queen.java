@@ -18,7 +18,7 @@ public class Queen extends Piece
      * @param position the position of the created Queen.
      * @param board    the board the Queen is placed on.
      */
-    public Queen(Color color, Point position, Board board) {
+    public Queen(ChessColor color, Point position, Board board) {
 	super(color, Type.QUEEN, position, board);
     }
 

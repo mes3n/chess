@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 public class Player
 {
     private Piece selectedPiece = null;
-    private Entity.Color currentPlayer = Entity.Color.WHITE;
+    private Entity.ChessColor currentPlayer = Entity.ChessColor.WHITE;
     private boolean gameOver = false;
-    private Entity.Color winner = null;
+    private Entity.ChessColor winner = null;
 
     private final Board board;
     private List<Point> moves = new ArrayList<>();
@@ -50,19 +50,19 @@ public class Player
     /**
      * @return the winner of the game.
      */
-    public Entity.Color getWinner() {
+    public Entity.ChessColor getWinner() {
 	return winner;
     }
 
     /**
      * @return the player whose move it is.
      */
-    public Entity.Color getCurrentPlayer() {
+    public Entity.ChessColor getCurrentPlayer() {
 	return currentPlayer;
     }
 
-    private Entity.Color nextPlayer() {
-	return currentPlayer == Entity.Color.WHITE ? Entity.Color.BLACK : Entity.Color.WHITE;
+    private Entity.ChessColor getNextPlayer() {
+	return currentPlayer == Entity.ChessColor.WHITE ? Entity.ChessColor.BLACK : Entity.ChessColor.WHITE;
     }
 
     /**
@@ -76,28 +76,29 @@ public class Player
 	if (gameOver) {
 	    return;
 	}
-	Piece selection = board.pieceWith(piece -> tile.equals(piece.getPosition()) && currentPlayer.equals(piece.getColor()));
+	Piece selection = board.findPieceWith(piece -> tile.equals(piece.getPosition()) && currentPlayer.equals(piece.getColor()));
 
 	board.getPieces().forEach(piece -> {
-	    if (piece instanceof Pawn && currentPlayer.equals(piece.getColor())) {
+	    if (Entity.Type.PAWN.equals(piece.getType()) && currentPlayer.equals(piece.getColor())) {
 		((Pawn) piece).resetEnPassant();
 	    }
 	});
 
 	if (selectedPiece != null && selectedPiece.moveTo(tile)) {
-	    final List<Piece> pieceCpy = new ArrayList<>(board.getPieces());
-	    if (pieceCpy.stream().noneMatch(piece -> nextPlayer().equals(piece.getColor()) && !piece.getMoves().isEmpty())) {
-		winner = board.inCheck(nextPlayer()) ? currentPlayer : null;
+	    final List<Piece> piecesCopy = new ArrayList<>(board.getPieces());
+	    if (piecesCopy.stream().noneMatch(piece -> getNextPlayer().equals(piece.getColor()) && !piece.getMoves().isEmpty())) {
+		winner = board.isInCheck(getNextPlayer()) ? currentPlayer : null;
 		gameOver = true;
 
 		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 		logger.log(Level.FINE, "Game is finished. Winner is {0}", winner);
 	    }
 
-	    currentPlayer = nextPlayer();
+	    currentPlayer = getNextPlayer();
 	    selection = null;
 	}
 
+	// set to null if selectedPiece **is** selection
 	selectedPiece = selection == selectedPiece ? null : selection;
 	switch (selectedPiece) {
 	    case null -> moves.clear();

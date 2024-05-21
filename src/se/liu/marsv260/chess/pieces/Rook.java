@@ -21,21 +21,8 @@ public class Rook extends Piece
      * @param position the position of the created Rook.
      * @param board    the board the Rook is placed on.
      */
-    public Rook(Color color, Point position, Board board) {
+    public Rook(ChessColor color, Point position, Board board) {
 	super(color, Type.ROOK, position, board);
-    }
-
-    /**
-     * Constructor of the Rook class.
-     *
-     * @param color    the color of the created Rook.
-     * @param position the position of the created Rook.
-     * @param board    the board the Rook is placed on.
-     * @param hasMoved whether or not the Rook has moved.
-     */
-    public Rook(Color color, Point position, Board board, boolean hasMoved) {
-	this(color, position, board);
-	this.hasMoved = hasMoved;
     }
 
     /**

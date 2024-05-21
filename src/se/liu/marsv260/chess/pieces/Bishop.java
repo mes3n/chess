@@ -18,7 +18,7 @@ public class Bishop extends Piece
      * @param position the position of the created Bishop.
      * @param board    the board the Bishop is placed on.
      */
-    public Bishop(Entity.Color color, Point position, Board board) {
+    public Bishop(ChessColor color, Point position, Board board) {
 	super(color, Entity.Type.BISHOP, position, board);
     }
 

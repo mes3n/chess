@@ -24,7 +24,7 @@ public class King extends Piece
      * @param position the position of the created King.
      * @param board    the board the King is placed on.
      */
-    public King(Color color, Point position, Board board) {
+    public King(ChessColor color, Point position, Board board) {
 	super(color, Type.KING, position, board);
     }
 
@@ -42,18 +42,19 @@ public class King extends Piece
 
 	List<Point> moves = stepBy(deltas, 1, checkForCheck);
 
-	if (checkForCheck && !board.inCheck(this)) {
-	    final List<Point> castelDeltas = Arrays.asList(new Point(1, 0), new Point(-1, 0));
-	    final List<Point> castle = stepBy(castelDeltas, -1, this::casteAddToAndStop, checkForCheck);
+	if (checkForCheck && !board.isInCheck(this)) {
+	    final List<Point> castleDeltas = Arrays.asList(new Point(1, 0), new Point(-1, 0));
+	    final List<Point> castle = stepBy(castleDeltas, -1, this::casteAddToAndStop, checkForCheck);
 	    for (Point move : castle) {
-		Piece rook = board.pieceAt(move);
-		if (rook instanceof Rook && !((Rook) rook).getHasMoved()) {
-		    moves.add(new Point(getPosition().x + (move.x < getPosition().x ? -2 : 2), getPosition().y));
+		Piece rook = board.findPieceAt(move);
+		if (Type.ROOK.equals(rook.getType()) && !((Rook) rook).getHasMoved()) {
+		    final int kingStep = 2;
+		    moves.add(new Point(getPosition().x + (move.x < getPosition().x ? -kingStep : kingStep), getPosition().y));
 		}
 	    }
 	}
 
-	return checkForCheck ? moves.stream().filter(move -> !board.inCheck(this, move)).collect(Collectors.toList()) : moves;
+	return checkForCheck ? moves.stream().filter(move -> !board.isInCheck(this, move)).collect(Collectors.toList()) : moves;
     }
 
     private boolean casteAddToAndStop(final List<Point> moves, final Point move, final Board.MoveResult result) {
@@ -79,12 +80,13 @@ public class King extends Piece
 	    return false;
 	}
 
-	if (Math.abs(position.x - oldPosition.x) == 2) {
-	    Piece rook = board.pieceAt(new Point((position.x - oldPosition.x > 0 ? 7 : 0), getPosition().y));
-	    if (rook instanceof Rook && !((Rook) rook).getHasMoved()) {
+	final int dx = position.x - oldPosition.x;
+	if (Math.abs(dx) == 2) {
+	    Piece rook = board.findPieceAt(new Point((dx > 0 ? board.getWidth() - 1 : 0), getPosition().y));
+	    if (Type.ROOK.equals(rook.getType()) && !((Rook) rook).getHasMoved()) {
 		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
 		logger.log(Level.FINE, "Casteled {0} with {1}", new Object[] { getClass(), rook.getClass() });
-		rook.setPosition(new Point(getPosition().x + (position.x - oldPosition.x > 0 ? -1 : 1), getPosition().y));
+		rook.setPosition(new Point(getPosition().x + (dx > 0 ? -1 : 1), getPosition().y));
 	    } else {
 		setPosition(oldPosition);
 		return false;
@@ -92,12 +94,5 @@ public class King extends Piece
 	}
 	hasMoved = true;
 	return true;
-    }
-
-    /**
-     * @return has King moved or not.
-     */
-    public boolean getHasMoved() {
-	return hasMoved;
     }
 }

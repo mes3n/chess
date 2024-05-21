@@ -18,7 +18,7 @@ public class Horse extends Piece
      * @param position the position of the created Horse.
      * @param board    the board the Horse is placed on.
      */
-    public Horse(Entity.Color color, Point position, Board board) {
+    public Horse(ChessColor color, Point position, Board board) {
 	super(color, Type.HORSE, position, board);
     }
 

@@ -28,7 +28,7 @@ public abstract class Piece extends Entity
      * @param position the position on the board of the created Piece.
      * @param board    the board the Piece is placed on.
      */
-    protected Piece(final Color color, final Type type, final Point position, final Board board) {
+    protected Piece(final ChessColor color, final Type type, final Point position, final Board board) {
 	super(color, type);
 	this.position = position;
 	this.board = board;
@@ -67,7 +67,7 @@ public abstract class Piece extends Entity
 	    logger.log(Level.FINE, "Failed with moving {0} to {1}", new Object[] { getClass(), position });
 	    return false;
 	}
-	Piece piece = board.pieceAt(position);
+	Piece piece = board.findPieceAt(position);
 	if (piece != null) {
 	    if (getColor().equals(piece.getColor())) {
 		return false;
@@ -89,7 +89,7 @@ public abstract class Piece extends Entity
 	List<Point> moves = new ArrayList<>();
 
 	for (Point delta : deltas) {
-	    Board.MoveResult result = Board.MoveResult.OK;
+	    Board.MoveResult result;
 	    Point moveTo = new Point(position);
 	    int c = 0;
 	    do {

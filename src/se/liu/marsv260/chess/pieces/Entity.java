@@ -7,7 +7,7 @@ package se.liu.marsv260.chess.pieces;
  */
 public class Entity
 {
-    private final Color color;
+    private final ChessColor color;
     private final Type type;
 
     /**
@@ -16,15 +16,15 @@ public class Entity
      * @param color the color of the created Entity.
      * @param type  the type of the created Entity.
      */
-    public Entity(final Color color, final Type type) {
+    public Entity(final ChessColor color, final Type type) {
 	this.color = color;
 	this.type = type;
     }
 
     /**
-     * @return Entity's Color.
+     * @return Entity's ChessColor.
      */
-    public Color getColor() {
+    public ChessColor getColor() {
 	return color;
     }
 
@@ -38,7 +38,7 @@ public class Entity
     /**
      * Enumerator of an Entitiy's possible Colors. Entities can be black or white.
      */
-    public enum Color
+    public enum ChessColor
     {
 	WHITE(0), BLACK(1);
 
@@ -47,7 +47,7 @@ public class Entity
 	 */
 	public final int value;
 
-	Color(int value) {
+	ChessColor(int value) {
 	    this.value = value;
 	}
     }
