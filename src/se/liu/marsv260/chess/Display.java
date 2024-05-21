@@ -119,8 +119,7 @@ public class Display extends JComponent
 	}
 
 	g2d.setColor(new Color(100, 200, 0, 100));
-	final int scale = 8;
-	final int r = tileSize / scale;
+	final int r = tileSize / 8;
 	for (Point point : player.getMoves()) {
 	    g2d.fillOval((int) (tileSize * (point.x + 0.5)) - r, (int) (tileSize * (point.y + 0.5)) - r, 2 * r, 2 * r);
 	}

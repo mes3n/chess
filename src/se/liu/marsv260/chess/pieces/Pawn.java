@@ -19,7 +19,7 @@ public class Pawn extends Piece
     private boolean canBeEnPassant = false;
     private final int forwards;
 
-    private static final int firstMoveLength = 2;
+    private static final int FIRST_MOVE_LENGTH = 2;
 
     /**
      * Constructor of the Pawn class.
@@ -42,7 +42,7 @@ public class Pawn extends Piece
      */
     @Override public java.util.List<Point> getMoves(boolean checkForCheck) {
 	final List<Point> deltas = Arrays.asList(new Point(0, forwards));
-	List<Point> moves = stepBy(deltas, firstMove ? firstMoveLength : 1, checkForCheck);
+	List<Point> moves = stepBy(deltas, firstMove ? FIRST_MOVE_LENGTH : 1, checkForCheck);
 
 	final List<Point> deltasCapture = Arrays.asList(new Point(1, forwards), new Point(-1, forwards));
 	moves.addAll(stepBy(deltasCapture, 1, this::captureAddToAndStop, checkForCheck));
@@ -120,7 +120,7 @@ public class Pawn extends Piece
 		board.removePiece(piece);
 	    }
 	}
-	if (position.y - oldPosition.y == firstMoveLength * forwards) {  // True if moved two steps forwards
+	if (position.y - oldPosition.y == FIRST_MOVE_LENGTH * forwards) {  // True if moved two steps forwards
 	    canBeEnPassant = true;
 	}
 	firstMove = false;

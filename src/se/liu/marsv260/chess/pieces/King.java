@@ -42,7 +42,7 @@ public class King extends Piece
 
 	List<Point> moves = stepBy(deltas, 1, checkForCheck);
 
-	if (checkForCheck && !board.isInCheck(this)) {
+	if (checkForCheck && !hasMoved && !board.isInCheck(this)) {
 	    final List<Point> castleDeltas = Arrays.asList(new Point(1, 0), new Point(-1, 0));
 	    final List<Point> castle = stepBy(castleDeltas, -1, this::casteAddToAndStop, checkForCheck);
 	    for (Point move : castle) {
@@ -81,7 +81,7 @@ public class King extends Piece
 	}
 
 	final int dx = position.x - oldPosition.x;
-	if (Math.abs(dx) == 2) {
+	if (Math.abs(dx) > 1) {
 	    Piece rook = board.findPieceAt(new Point((dx > 0 ? board.getWidth() - 1 : 0), getPosition().y));
 	    if (Type.ROOK.equals(rook.getType()) && !((Rook) rook).getHasMoved()) {
 		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
