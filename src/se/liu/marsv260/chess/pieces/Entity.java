@@ -5,7 +5,7 @@ package se.liu.marsv260.chess.pieces;
  * <p>
  * Contains information about the piece's color and type, e.g. a white rook.
  */
-public class Entity
+public abstract class Entity
 {
     private final ChessColor color;
     private final Type type;
@@ -16,7 +16,7 @@ public class Entity
      * @param color the color of the created Entity.
      * @param type  the type of the created Entity.
      */
-    public Entity(final ChessColor color, final Type type) {
+    protected Entity(final ChessColor color, final Type type) {
 	this.color = color;
 	this.type = type;
     }

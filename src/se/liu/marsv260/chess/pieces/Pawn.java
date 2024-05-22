@@ -115,7 +115,7 @@ public class Pawn extends Piece
 	// Capture has been made en passant
 	if (Math.abs(position.x - oldPosition.x) == 1) {
 	    Piece piece = board.findPieceAt(new Point(position.x, oldPosition.y));
-	    if (Type.PAWN.equals(piece.getType()) && !getColor().equals(piece.getColor()) && ((Pawn) piece).getCanBeEnPassant()) {
+	    if (piece != null && Type.PAWN.equals(piece.getType()) && !getColor().equals(piece.getColor()) && ((Pawn) piece).getCanBeEnPassant()) {
 		logger.log(Level.FINE, "{0} captured {1} en passant", new Object[] { getClass(), piece.getClass() });
 		board.removePiece(piece);
 	    }

@@ -133,6 +133,9 @@ public class Board
      */
     public boolean isInCheck(Entity.ChessColor color) {
 	final King king = (King) findPieceWith(piece -> Entity.Type.KING.equals(piece.getType()) && color.equals(piece.getColor()));
+	if (king == null) {
+	    return false;
+	}
 	return isInCheck(king);
     }
 
@@ -144,7 +147,8 @@ public class Board
      * @return whether or not the king is in check.
      */
     public boolean isInCheck(King king) {
-	return findPieceWith(piece -> !king.getColor().equals(piece.getColor()) && piece.getMoves(false).contains(king.getPosition())) != null;
+	return findPieceWith(piece -> !king.getColor().equals(piece.getColor()) && piece.getMoves(false).contains(king.getPosition())) !=
+	       null;
     }
 
 

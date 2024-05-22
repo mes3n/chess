@@ -44,10 +44,10 @@ public class King extends Piece
 
 	if (checkForCheck && !hasMoved && !board.isInCheck(this)) {
 	    final List<Point> castleDeltas = Arrays.asList(new Point(1, 0), new Point(-1, 0));
-	    final List<Point> castle = stepBy(castleDeltas, -1, this::casteAddToAndStop, checkForCheck);
+	    final List<Point> castle = stepBy(castleDeltas, -1, this::castleAddToAndStop, checkForCheck);
 	    for (Point move : castle) {
-		Piece rook = board.findPieceAt(move);
-		if (Type.ROOK.equals(rook.getType()) && !((Rook) rook).getHasMoved()) {
+		Piece piece = board.findPieceAt(move);
+		if (piece != null && Type.ROOK.equals(piece.getType()) && !((Rook) piece).getHasMoved()) {
 		    final int kingStep = 2;
 		    moves.add(new Point(getPosition().x + (move.x < getPosition().x ? -kingStep : kingStep), getPosition().y));
 		}
@@ -57,7 +57,7 @@ public class King extends Piece
 	return checkForCheck ? moves.stream().filter(move -> !board.isInCheck(this, move)).collect(Collectors.toList()) : moves;
     }
 
-    private boolean casteAddToAndStop(final List<Point> moves, final Point move, final Board.MoveResult result) {
+    private boolean castleAddToAndStop(final List<Point> moves, final Point move, final Board.MoveResult result) {
 	if (result == Board.MoveResult.WALLED) {
 	    moves.add(new Point(move));
 	    return true;
@@ -82,11 +82,11 @@ public class King extends Piece
 
 	final int dx = position.x - oldPosition.x;
 	if (Math.abs(dx) > 1) {
-	    Piece rook = board.findPieceAt(new Point((dx > 0 ? board.getWidth() - 1 : 0), getPosition().y));
-	    if (Type.ROOK.equals(rook.getType()) && !((Rook) rook).getHasMoved()) {
+	    Piece piece = board.findPieceAt(new Point((dx > 0 ? board.getWidth() - 1 : 0), getPosition().y));
+	    if (piece != null && Type.ROOK.equals(piece.getType()) && !((Rook) piece).getHasMoved()) {
 		Logger logger = LogManager.getLogManager().getLogger(Logger.GLOBAL_LOGGER_NAME);
-		logger.log(Level.FINE, "Casteled {0} with {1}", new Object[] { getClass(), rook.getClass() });
-		rook.setPosition(new Point(getPosition().x + (dx > 0 ? -1 : 1), getPosition().y));
+		logger.log(Level.FINE, "Casteled {0} with {1}", new Object[] { getClass(), piece.getClass() });
+		piece.setPosition(new Point(getPosition().x + (dx > 0 ? -1 : 1), getPosition().y));
 	    } else {
 		setPosition(oldPosition);
 		return false;
